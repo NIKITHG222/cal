@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Flask Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 50px auto;
+      max-width: 320px;
+      background-color: #f5f5f5;
+    }
+    #display {
+      width: 100%;
+      height: 40px;
+      font-size: 20px;
+      text-align: right;
+      padding: 5px 10px;
+      margin-bottom: 10px;
+    }
+    button {
+      width: 70px;
+      height: 50px;
+      margin: 5px 5px 0 0;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    .operator {
+      background-color: orange;
+      color: white;
+    }
+    .equal {
+      background-color: green;
+      color: white;
+      width: 150px;
+    }
+  </style>
+</head>
+<body>
+  <input type="text" id="display" disabled />
+  <br />
+  <button onclick="appendNumber('7')">7</button>
+  <button onclick="appendNumber('8')">8</button>
+  <button onclick="appendNumber('9')">9</button>
+  <button class="operator" onclick="appendOperator('/')">÷</button>
+  <br />
+  <button onclick="appendNumber('4')">4</button>
+  <button onclick="appendNumber('5')">5</button>
+  <button onclick="appendNumber('6')">6</button>
+  <button class="operator" onclick="appendOperator('*')">×</button>
+  <br />
+  <button onclick="appendNumber('1')">1</button>
+  <button onclick="appendNumber('2')">2</button>
+  <button onclick="appendNumber('3')">3</button>
+  <button class="operator" onclick="appendOperator('-')">−</button>
+  <br />
+  <button onclick="appendNumber('0')">0</button>
+  <button onclick="appendNumber('.')">.</button>
+  <button onclick="clearDisplay()">C</button>
+  <button class="operator" onclick="appendOperator('+')">+</button>
+  <br />
+  <button class="equal" onclick="calculate()">=</button>
+
+  <script>
+    const display = document.getElementById('display');
+
+    function appendNumber(num) {
+      display.value += num;
+    }
+
+    function appendOperator(op) {
+      const lastChar = display.value.slice(-1);
+      if (['+', '-', '*', '/'].includes(lastChar) || display.value === '') return;
+      display.value += op;
+    }
+
+    function clearDisplay() {
+      display.value = '';
+    }
+
+    async function calculate() {
+      const expression = display.value;
+      if (!expression) return;
+      try {
+        const response = await fetch('/calculate', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({expression})
+        });
+        if (!response.ok) throw new Error('Invalid expression');
+        const data = await response.json();
+        display.value = data.result;
+      } catch (error) {
+        display.value = 'Error';
+      }
+    }
+  </script>
+</body>
+</html>
+
